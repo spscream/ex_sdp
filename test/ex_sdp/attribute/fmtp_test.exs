@@ -4,6 +4,34 @@ defmodule ExSDP.Attribute.FMTPTest do
   alias ExSDP.Attribute.FMTP
 
   describe "FMTP parser" do
+    test "parses H263 annex with value" do
+      annexes = ["F", "I", "J", "T", "K", "N", "P"]
+      Enum.each(annexes, fn(annex) ->
+        fmtp = "96 #{annex}=0"
+
+        expected = %FMTP{
+          pt: 96,
+          h263_annex: %{type: annex, value: "0"}
+        }
+
+        assert {:ok, expected} == FMTP.parse(fmtp)
+      end)
+    end
+
+    test "parses H263 annex without value" do
+      annexes = ["F", "I", "J", "T", "K", "N", "P"]
+      Enum.each(annexes, fn(annex) ->
+        fmtp = "96 #{annex}"
+
+        expected = %FMTP{
+          pt: 96,
+          h263_annex: %{type: annex, value: "1"}
+        }
+
+        assert {:ok, expected} == FMTP.parse(fmtp)
+      end)
+    end
+
     test "parses proper fmtp" do
       fmtp = "108 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1"
 

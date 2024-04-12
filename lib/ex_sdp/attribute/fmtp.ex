@@ -23,6 +23,8 @@ defmodule ExSDP.Attribute.FMTP do
   defstruct @enforce_keys ++
               [
                 # H264
+                :h263_annex,
+                # H264
                 :profile_level_id,
                 :level_asymmetry_allowed,
                 :packetization_mode,
@@ -332,6 +334,16 @@ defmodule ExSDP.Attribute.FMTP do
 
   defp parse_param(["bitrate=" <> value | rest], fmtp) do
     with {:ok, value} <- Utils.parse_numeric_string(value), do: {rest, %{fmtp | bitrate: value}}
+  end
+
+  defp parse_param([param | rest], fmtp)
+  when param in ["F", "I", "J", "T", "K", "N", "P"]  do
+    {rest, %{fmtp | h263_annex: %{type: param, value: "1"}}}
+  end
+
+  defp parse_param([<<param::binary-size(1)>> <> "=" <> value | rest], fmtp)
+  when param in ["F", "I", "J", "T", "K", "N", "P"]  do
+    {rest, %{fmtp | h263_annex: %{type: param, value: value}}}
   end
 
   defp parse_param([head | rest] = params, fmtp) do
